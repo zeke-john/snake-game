@@ -25,6 +25,9 @@ lead_x_change_right = 0
 lead_y_change_up = 0
 lead_y_change_down = 0
 
+block_size = 20
+
+fps = 60
 
 clock = pygame.time.Clock()
 
@@ -68,13 +71,12 @@ while not gameExit:
     lead_y += lead_y_change_down
     
     if lead_x >= display_width - 16 or lead_x <= 1 or lead_y >= display_height - 16 or lead_y <= 1:
-        print("crash")
         gameExit = True
     
     gameDisplay.fill(green)
-    pygame.draw.rect(gameDisplay, black, [lead_x, lead_y, 20,20])
+    pygame.draw.rect(gameDisplay, black, [lead_x, lead_y, block_size, block_size])
     pygame.display.update()
-    clock.tick(60)
+    clock.tick(fps)
 
 pygame.quit()       
 quit()
