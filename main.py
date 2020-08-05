@@ -1,12 +1,22 @@
 import pygame
-
-white = ((255, 255, 255))
-blue = ((0, 0, 200))
-green = ((0, 135, 0))
-red = ((255, 0, 0))
-black = ((0, 0, 0))
+import time
 
 pygame.init()
+grey = (170, 170, 170)
+white = (255, 255, 255)
+black = (0, 0, 0)
+red = (250, 105, 105)
+blue = (95, 95, 255)
+green = (0, 135, 0)
+bright_red = (255, 0, 0)
+bright_blue = (0, 0, 255)
+
+
+large_Text = pygame.font.SysFont("C059", 115)
+small_Text = pygame.font.SysFont("C059", 20)
+pause_Text = pygame.font.SysFont("C059", 140)
+
+
 display_width = 920
 display_height = 720
 
@@ -22,17 +32,84 @@ fps = 60
 
 clock = pygame.time.Clock()
 
+gameExit = False 
 
+def game_exit():
+    pygame.quit()
+    quit()
 
+def text_objects(text, font):
+    textSurface = font.render(text, True, black)
+    return textSurface, textSurface.get_rect()
 
+def button(msg, x, y, w, h, ic, ac, action=None):
+    mouse = pygame.mouse.get_pos()
+    clicked = pygame.mouse.get_pressed()
 
+    if x + w > mouse[0] > x and y < mouse[1]:
+        pygame.draw.rect(gameDisplay, ac, (x, y, w, h))
+        if clicked[0] == 1 and action != None:
+            action()
+    else:
+        pygame.draw.rect(gameDisplay, ic, (x, y, w, h))
+    TextSurf, TextRect = text_objects(msg, small_Text)
+    TextRect.center = ((x + (w/2)), (y + (h/2)))
+    gameDisplay.blit(TextSurf, TextRect)
+    
+def unpause():
+    global pause
+    pygame.mixer.music.unpause()
+    pause = False
+    
+def paused():
 
+    global pause
+    pause = True
+
+    while pause:
+        pygame.display.set_caption("Snake")
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.QUIT
+                quit()
+
+        gameDisplay.fill(green)
+        mouse = pygame.mouse.get_pos()
+        TextSurf, TextRect = text_objects("Paused", pause_Text)
+        TextRect.center = ((display_width / 2), (display_height/2 - 30))
+        gameDisplay.blit(TextSurf, TextRect)
+
+        button("Continue", 230, 450, 100, 50, blue, bright_blue, unpause)
+        button("Quit", 550, 450, 100, 50, red, bright_red, game_exit)
+
+        pygame.display.update()
+        clock.tick(15)
+    
+def game_over():
+    
+    time.sleep(1)
+
+    while True:
+        pygame.display.set_caption("Snake")
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.QUIT
+                quit()
+
+        gameDisplay.fill(green)
+        mouse = pygame.mouse.get_pos()
+        TextSurf, TextRect = text_objects("Game Over", large_Text)
+        TextRect.center = ((display_width / 2), (display_height/2 - 30))
+        gameDisplay.blit(TextSurf, TextRect)
+
+        button("Replay", 230, 450, 100, 50, blue, bright_blue, game_loop)
+        button("Quit", 550, 450, 100, 50, red, bright_red, game_exit)
+
+        pygame.display.update()
+        clock.tick(15)
 
 
 def game_loop():
-    
-    game_over = False
-    gameExit = False 
 
     lead_x = display_width/2
     lead_y = display_height/2
@@ -45,6 +122,7 @@ def game_loop():
     
     
     while not gameExit:
+        global pause
         
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -77,14 +155,23 @@ def game_loop():
                     lead_y_change_down = 0
                     lead_x_change_right = 0
                     
+                if event.key == pygame.K_SPACE:
+                    pause = True
+                    paused()
+                    
+                if event.key == pygame.K_p:
+                    pause = True
+                    paused()
+                    
+                    
         lead_x += lead_x_change_right
         lead_x += lead_x_change_left
         
         lead_y += lead_y_change_up
         lead_y += lead_y_change_down
         
-        if lead_x >= display_width - 16 or lead_x <= 1 or lead_y >= display_height - 16 or lead_y <= 1:
-            gameExit = True
+        if lead_x >= display_width -15.3 or lead_x <= -3 or lead_y >= display_height - 15.3 or lead_y <= -3:
+            game_over()
         
         gameDisplay.fill(green)
         pygame.draw.rect(gameDisplay, black, [lead_x, lead_y, snake_size, snake_size])
@@ -92,3 +179,5 @@ def game_loop():
         clock.tick(fps)
 
 game_loop()
+pygame.quit()
+quit()
