@@ -16,6 +16,8 @@ small_Text = pygame.font.SysFont("C059", 20)
 med_Text = pygame.font.SysFont("C059", 30)
 parge_Text = pygame.font.SysFont("C059", 120)
 
+pygame.mixer.music.load("music.wav")
+crash_sound = pygame.mixer.Sound("bong.wav")
 
 
 display_width = 920
@@ -63,6 +65,8 @@ def unpause():
     pause = False
     
 def paused():
+    
+    pygame.mixer.music.pause()
 
     global pause
     pause = True
@@ -87,6 +91,9 @@ def paused():
         clock.tick(15)
     
 def game_over():
+    
+    pygame.mixer.music.stop()
+    pygame.mixer.Sound.play(crash_sound)
     
     time.sleep(1)
 
@@ -124,18 +131,20 @@ def game_intro():
         mouse = pygame.mouse.get_pos()
         TextSurf, TextRect = text_objects("Use the arrow keys to control the snake", med_Text)
         TextRect.center = ((display_width / 2), (display_height/2 - 40))
-        TextSur, TextRec = text_objects("Press the spacebar to pause", med_Text)
-        TextRec.center = ((display_width / 2), (display_height/2 ))
+        TextSurf_1, TextRect_1= text_objects("Press the spacebar to pause", med_Text)
+        TextRect_1.center = ((display_width / 2), (display_height/2 ))
         gameDisplay.blit(TextSurf, TextRect)
-        gameDisplay.blit(TextSur, TextRec)
-
+        gameDisplay.blit(TextSurf_1, TextRect_1)
+        
+        
         button("Start Game", 400, 450, 120, 60, blue, bright_blue, game_loop)
 
         pygame.display.update()
         clock.tick(15)
-
-
+        
 def game_loop():
+    
+    pygame.mixer.music.play(-1)
 
     lead_x = display_width/2
     lead_y = display_height/2
@@ -184,12 +193,12 @@ def game_loop():
                 if event.key == pygame.K_SPACE:
                     pause = True
                     paused()
-                    
+ 
+                if event.key == pygame.K_m:
+                    pygame.mixer.music.pause()
                 if event.key == pygame.K_p:
-                    pause = True
-                    paused()
-                    
-                    
+                    pygame.mixer.music.unpause()
+                
         lead_x += lead_x_change_right
         lead_x += lead_x_change_left
         
@@ -198,6 +207,7 @@ def game_loop():
         
         if lead_x >= display_width - 17 or lead_x <= -3 or lead_y >= display_height - 15 or lead_y <= -2:
             game_over()
+            
         
         gameDisplay.fill(green)
         pygame.draw.rect(gameDisplay, black, [lead_x, lead_y, snake_size, snake_size])
