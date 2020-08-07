@@ -6,7 +6,7 @@ pygame.init()
 white = (255, 255, 255)
 black = (0,0,0)
 red = (220, 0, 0)
-blue = (0, 0, 220)
+blue = (10, 10, 210)
 green = (0, 170, 0)
 bright_red = (255, 0, 0)
 bright_blue = (0, 0, 255)
@@ -16,8 +16,8 @@ small_Text = pygame.font.SysFont("C059", 20)
 med_Text = pygame.font.SysFont("C059", 30)
 parge_Text = pygame.font.SysFont("C059", 120)
 
-pygame.mixer.music.load("music.wav")
-crash_sound = pygame.mixer.Sound("bong.wav")
+pygame.mixer.music.load("sounds/music.wav")
+crash_sound = pygame.mixer.Sound("sounds/bong.wav")
 
 
 display_width = 920
@@ -29,9 +29,11 @@ pygame.display.update()
 
 snake_size = 20
 
-snake_speed = 10
+apple_size = 20
 
-fps = 35
+snake_speed = 20
+
+fps = 20
 
 clock = pygame.time.Clock()
 
@@ -88,14 +90,14 @@ def paused():
         button("Quit", 550, 450, 100, 50, red, bright_red, game_exit)
 
         pygame.display.update()
-        clock.tick(15)
+        clock.tick(15)    
     
 def game_over():
     
-    pygame.mixer.music.stop()
     pygame.mixer.Sound.play(crash_sound)
+    pygame.mixer.music.stop()
     
-    time.sleep(1)
+    time.sleep(1.5)
 
     while True:
         pygame.display.set_caption("Snake")
@@ -143,7 +145,6 @@ def game_intro():
         clock.tick(15)
         
 def game_loop():
-    
     pygame.mixer.music.play(-1)
 
     lead_x = display_width/2
@@ -155,7 +156,9 @@ def game_loop():
     lead_y_change_up = 0
     lead_y_change_down = 0
     
-    
+    randAppleX = round(random.randrange(-2, display_width - 16)/20) * 20
+    randAppleY = round(random.randrange(-1, display_height - 14)/20) * 20
+
     while not gameExit:
         global pause
         
@@ -193,9 +196,10 @@ def game_loop():
                 if event.key == pygame.K_SPACE:
                     pause = True
                     paused()
- 
+                    
                 if event.key == pygame.K_m:
                     pygame.mixer.music.pause()
+    
                 if event.key == pygame.K_p:
                     pygame.mixer.music.unpause()
                 
@@ -210,6 +214,7 @@ def game_loop():
             
         
         gameDisplay.fill(green)
+        pygame.draw.rect(gameDisplay,red, [randAppleX, randAppleY, apple_size, apple_size])
         pygame.draw.rect(gameDisplay, black, [lead_x, lead_y, snake_size, snake_size])
         pygame.display.update()
         clock.tick(fps)
