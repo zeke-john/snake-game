@@ -17,7 +17,6 @@ med_Text = pygame.font.SysFont("C059", 30)
 parge_Text = pygame.font.SysFont("C059", 120)
 
 pygame.mixer.music.load("sounds/music.wav")
-crash_sound = pygame.mixer.Sound("sounds/bong.wav")
 
 
 display_width = 920
@@ -38,6 +37,22 @@ fps = 20
 clock = pygame.time.Clock()
 
 gameExit = False 
+
+global high_score
+high_score = 0
+
+def length(count):
+    font = pygame.font.SysFont("C059", 18)
+    text = font.render("Length: "+str(count), True, black)
+    gameDisplay.blit(text, (1, 1))
+    
+def best(count):
+    font = pygame.font.SysFont("C059", 18)
+    text = font.render("Best: "+str(count), True, black)
+    gameDisplay.blit(text, (1, 22))
+
+def snake(lead_x, lead_y, snake_size):
+    pygame.draw.rect(gameDisplay, black, [lead_x, lead_y, snake_size, snake_size])
 
 def game_exit():
     pygame.quit()
@@ -93,8 +108,6 @@ def paused():
         clock.tick(15)    
     
 def game_over():
-    
-    pygame.mixer.Sound.play(crash_sound)
     pygame.mixer.music.stop()
     
     time.sleep(1.5)
@@ -135,18 +148,26 @@ def game_intro():
         TextRect.center = ((display_width / 2), (display_height/2 - 40))
         TextSurf_1, TextRect_1= text_objects("Press the spacebar to pause", med_Text)
         TextRect_1.center = ((display_width / 2), (display_height/2 ))
+        TextSurf_2, TextRect_2= text_objects("Press m to mute the music and p to play it", med_Text)
+        TextRect_2.center = ((display_width / 2), (display_height/2 -80))
         gameDisplay.blit(TextSurf, TextRect)
+        gameDisplay.blit(TextSurf_2, TextRect_2)
         gameDisplay.blit(TextSurf_1, TextRect_1)
         
         
         button("Start Game", 400, 450, 120, 60, blue, bright_blue, game_loop)
 
         pygame.display.update()
-        clock.tick(15)
+        clock.tick(15)  
         
 def game_loop():
+    global pause
+    global high_score
+    
     pygame.mixer.music.play(-1)
-
+    
+    pygame.mixer.music.play(-1)
+    
     lead_x = display_width/2
     lead_y = display_height/2
 
@@ -158,9 +179,10 @@ def game_loop():
     
     randAppleX = round(random.randrange(-2, display_width - 16)/20) * 20
     randAppleY = round(random.randrange(-1, display_height - 14)/20) * 20
+    
+    snake_length = 0
 
     while not gameExit:
-        global pause
         
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -199,10 +221,12 @@ def game_loop():
                     
                 if event.key == pygame.K_m:
                     pygame.mixer.music.pause()
-    
+                    
                 if event.key == pygame.K_p:
                     pygame.mixer.music.unpause()
+                    
                 
+                    
         lead_x += lead_x_change_right
         lead_x += lead_x_change_left
         
@@ -212,10 +236,22 @@ def game_loop():
         if lead_x >= display_width - 17 or lead_x <= -3 or lead_y >= display_height - 15 or lead_y <= -2:
             game_over()
             
+        if lead_x == randAppleX and lead_y == randAppleY:
+            snake_length +=1
+            randAppleX = round(random.randrange(-2, display_width - 16)/20) * 20
+            randAppleY = round(random.randrange(-1, display_height - 14)/20) * 20
+            print("nom nom nom")
+            
+        if snake_length > high_score:
+            high_score = snake_length
+            high_score = high_score
+            
         
         gameDisplay.fill(green)
+        length(snake_length)
+        best(high_score)
         pygame.draw.rect(gameDisplay,red, [randAppleX, randAppleY, apple_size, apple_size])
-        pygame.draw.rect(gameDisplay, black, [lead_x, lead_y, snake_size, snake_size])
+        snake(lead_x, lead_y, snake_size)
         pygame.display.update()
         clock.tick(fps)
         
