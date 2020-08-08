@@ -10,6 +10,7 @@ blue = (10, 10, 210)
 green = (0, 170, 0)
 bright_red = (255, 0, 0)
 bright_blue = (0, 0, 255)
+snake_blue = (0, 0, 180)
 
 large_Text = pygame.font.SysFont("C059", 115)
 small_Text = pygame.font.SysFont("C059", 20)
@@ -30,7 +31,7 @@ snake_size = 20
 
 apple_size = 20
 
-snake_speed = 20
+snake_speed = snake_size
 
 fps = 20
 
@@ -41,18 +42,18 @@ gameExit = False
 global high_score
 high_score = 0
 
-def length(count):
+def snake_score(count):
     font = pygame.font.SysFont("C059", 18)
     text = font.render("Length: "+str(count), True, black)
-    gameDisplay.blit(text, (1, 1))
+    gameDisplay.blit(text, (2, 1))
     
 def best(count):
     font = pygame.font.SysFont("C059", 18)
     text = font.render("Best: "+str(count), True, black)
-    gameDisplay.blit(text, (1, 22))
+    gameDisplay.blit(text, (2, 24))
 
 def snake(lead_x, lead_y, snake_size):
-    pygame.draw.rect(gameDisplay, black, [lead_x, lead_y, snake_size, snake_size])
+    pygame.draw.rect(gameDisplay, snake_blue, [lead_x, lead_y, snake_size, snake_size])
 
 def game_exit():
     pygame.quit()
@@ -95,7 +96,6 @@ def paused():
                 pygame.QUIT
                 quit()
 
-        gameDisplay.fill(green)
         mouse = pygame.mouse.get_pos()
         TextSurf, TextRect = text_objects("Paused", parge_Text)
         TextRect.center = ((display_width / 2), (display_height/2 - 30))
@@ -180,7 +180,7 @@ def game_loop():
     randAppleX = round(random.randrange(-2, display_width - 16)/20) * 20
     randAppleY = round(random.randrange(-1, display_height - 14)/20) * 20
     
-    snake_length = 0
+    score = 0
 
     while not gameExit:
         
@@ -237,18 +237,17 @@ def game_loop():
             game_over()
             
         if lead_x == randAppleX and lead_y == randAppleY:
-            snake_length +=1
+            score +=1
             randAppleX = round(random.randrange(-2, display_width - 16)/20) * 20
             randAppleY = round(random.randrange(-1, display_height - 14)/20) * 20
-            print("nom nom nom")
             
-        if snake_length > high_score:
-            high_score = snake_length
+        if score > high_score:
+            high_score = score
             high_score = high_score
             
         
         gameDisplay.fill(green)
-        length(snake_length)
+        snake_score(score)
         best(high_score)
         pygame.draw.rect(gameDisplay,red, [randAppleX, randAppleY, apple_size, apple_size])
         snake(lead_x, lead_y, snake_size)
