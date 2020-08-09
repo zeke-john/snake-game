@@ -52,8 +52,9 @@ def best(count):
     text = font.render("Best: "+str(count), True, black)
     gameDisplay.blit(text, (2, 24))
 
-def snake(lead_x, lead_y, snake_size):
-    pygame.draw.rect(gameDisplay, snake_blue, [lead_x, lead_y, snake_size, snake_size])
+def snake(snake_size, snakelist):
+    for XnY in snakelist:
+        pygame.draw.rect(gameDisplay, snake_blue, [XnY[0], XnY[1], snake_size, snake_size])
 
 def game_exit():
     pygame.quit()
@@ -177,6 +178,10 @@ def game_loop():
     lead_y_change_up = 0
     lead_y_change_down = 0
     
+    snakeList = []
+    
+    snake_length = 1
+    
     randAppleX = round(random.randrange(-2, display_width - 16)/20) * 20
     randAppleY = round(random.randrange(-1, display_height - 14)/20) * 20
     
@@ -225,8 +230,6 @@ def game_loop():
                 if event.key == pygame.K_p:
                     pygame.mixer.music.unpause()
                     
-                
-                    
         lead_x += lead_x_change_right
         lead_x += lead_x_change_left
         
@@ -237,6 +240,7 @@ def game_loop():
             game_over()
             
         if lead_x == randAppleX and lead_y == randAppleY:
+            snake_length +=1
             score +=1
             randAppleX = round(random.randrange(-2, display_width - 16)/20) * 20
             randAppleY = round(random.randrange(-1, display_height - 14)/20) * 20
@@ -244,13 +248,24 @@ def game_loop():
         if score > high_score:
             high_score = score
             high_score = high_score
+        
+        snakeHead = []
+        snakeHead.append(lead_x)
+        snakeHead.append(lead_y)
+        snakeList.append(snakeHead)
+        
+        if len(snakeList) > snake_length:
+            del snakeList[0]
             
+        for eachsegment in snakeList[:-1]:
+            if eachsegment == snakeHead:
+                game_over()
         
         gameDisplay.fill(green)
         snake_score(score)
         best(high_score)
         pygame.draw.rect(gameDisplay,red, [randAppleX, randAppleY, apple_size, apple_size])
-        snake(lead_x, lead_y, snake_size)
+        snake(snake_size, snakeList)
         pygame.display.update()
         clock.tick(fps)
         
