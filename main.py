@@ -7,18 +7,19 @@ white = (255, 255, 255)
 black = (0,0,0)
 red = (220, 0, 0)
 blue = (10, 10, 210)
-green = (0, 170, 0)
+green = (0, 190, 0)
 bright_red = (255, 0, 0)
 bright_blue = (0, 0, 255)
 snake_blue = (0, 0, 180)
 
-large_Text = pygame.font.SysFont("C059", 115)
-small_Text = pygame.font.SysFont("C059", 20)
-med_Text = pygame.font.SysFont("C059", 30)
-parge_Text = pygame.font.SysFont("C059", 120)
+large_Text = pygame.font.SysFont("Fira Mono", 115)
+small_Text = pygame.font.SysFont("Fira Mono", 20)
+med_Text = pygame.font.SysFont("Fira Mono", 30)
+parge_Text = pygame.font.SysFont("Fira Mono", 120)
 
 pygame.mixer.music.load("sounds/music.wav")
-
+snakeImg = pygame.image.load("imgs/snake_Img.png")
+appleImg = pygame.image.load("imgs/apple.png")
 
 display_width = 920
 display_height = 720
@@ -33,7 +34,7 @@ apple_size = 20
 
 snake_speed = snake_size
 
-fps = 20
+fps = 15
 
 clock = pygame.time.Clock()
 
@@ -42,18 +43,36 @@ gameExit = False
 global high_score
 high_score = 0
 
+direction = "up"
+
 def snake_score(count):
-    font = pygame.font.SysFont("C059", 18)
+    font = pygame.font.SysFont("Fira Mono", 18)
     text = font.render("Length: "+str(count), True, black)
-    gameDisplay.blit(text, (2, 1))
+    gameDisplay.blit(text, (0, 1))
     
 def best(count):
-    font = pygame.font.SysFont("C059", 18)
+    font = pygame.font.SysFont("Fira Mono", 18)
     text = font.render("Best: "+str(count), True, black)
-    gameDisplay.blit(text, (2, 24))
+    gameDisplay.blit(text, (0, 24))
 
 def snake(snake_size, snakelist):
-    for XnY in snakelist:
+    
+    if direction == "right":
+        head = pygame.transform.rotate(snakeImg, 270)
+        
+    if direction == "left":
+        head = pygame.transform.rotate(snakeImg, 90)
+        
+    if direction == "up":
+        head = snakeImg
+        
+    if direction == "down":
+        head = pygame.transform.rotate(snakeImg, 180)
+        
+    
+    gameDisplay.blit(head, (snakelist[-1][0], snakelist[-1][1]))
+    
+    for XnY in snakelist[:-1]:
         pygame.draw.rect(gameDisplay, snake_blue, [XnY[0], XnY[1], snake_size, snake_size])
 
 def game_exit():
@@ -149,21 +168,24 @@ def game_intro():
         TextRect.center = ((display_width / 2), (display_height/2 - 40))
         TextSurf_1, TextRect_1= text_objects("Press the spacebar to pause", med_Text)
         TextRect_1.center = ((display_width / 2), (display_height/2 ))
-        TextSurf_2, TextRect_2= text_objects("Press m to mute the music and p to play it", med_Text)
+        TextSurf_2, TextRect_2= text_objects("Press 'm' to mute the music and 'p' to play it", med_Text)
         TextRect_2.center = ((display_width / 2), (display_height/2 -80))
         gameDisplay.blit(TextSurf, TextRect)
         gameDisplay.blit(TextSurf_2, TextRect_2)
         gameDisplay.blit(TextSurf_1, TextRect_1)
         
         
-        button("Start Game", 400, 450, 120, 60, blue, bright_blue, game_loop)
+        button("Start Game", 400, 450, 130, 60, blue, bright_blue, game_loop)
 
         pygame.display.update()
         clock.tick(15)  
         
 def game_loop():
+    global direction
     global pause
     global high_score
+    
+    direction = "up"
     
     pygame.mixer.music.play(-1)
     
@@ -196,6 +218,7 @@ def game_loop():
                 
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_LEFT and lead_x_change_right == 0:
+                    direction = "left"
                     lead_x_change_left = -snake_speed
                     lead_x_change_right = 0
                     lead_y_change_down = 0
@@ -203,18 +226,21 @@ def game_loop():
                     
                     
                 if event.key == pygame.K_RIGHT and lead_x_change_left == 0:
+                    direction = "right"
                     lead_x_change_right = snake_speed
                     lead_y_change_down = 0
                     lead_y_change_up = 0
                     lead_x_change_left = 0
                     
                 if event.key == pygame.K_DOWN and lead_y_change_up == 0:
+                    direction = "down"
                     lead_y_change_down = snake_speed
                     lead_x_change_left = 0
                     lead_y_change_up = 0
                     lead_x_change_right = 0
                     
                 if event.key == pygame.K_UP and lead_y_change_down == 0:
+                    direction = "up"
                     lead_y_change_up = -snake_speed
                     lead_x_change_left = 0
                     lead_y_change_down = 0
@@ -264,7 +290,8 @@ def game_loop():
         gameDisplay.fill(green)
         snake_score(score)
         best(high_score)
-        pygame.draw.rect(gameDisplay,red, [randAppleX, randAppleY, apple_size, apple_size])
+        gameDisplay.blit(appleImg,(randAppleX, randAppleY))
+        #pygame.draw.rect(gameDisplay,red, [randAppleX, randAppleY, apple_size, apple_size])
         snake(snake_size, snakeList)
         pygame.display.update()
         clock.tick(fps)
